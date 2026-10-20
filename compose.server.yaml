@@ -1,0 +1,18 @@
+# Private server smoke test before the Cloudflare Tunnel is configured.
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      APP_PUBLIC_MODE: 'true'
+      APP_ACCESS_USER: ${APP_ACCESS_USER:?Set user username}
+      APP_ACCESS_PASSWORD: ${APP_ACCESS_PASSWORD:?Set strong user password}
+      APP_DB: /app/data/app.db
+      APP_STORAGE: /app/data/uploads
+    ports:
+      - '127.0.0.1:8000:8000'
+    volumes:
+      - app_data:/app/data
+volumes:
+  app_data:

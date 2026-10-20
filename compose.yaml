@@ -1,0 +1,35 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      APP_PUBLIC_MODE: 'true'
+      APP_ACCESS_USER: ${APP_ACCESS_USER:?Set user username in .env}
+      APP_ACCESS_PASSWORD: ${APP_ACCESS_PASSWORD:?Set a strong user password in .env}
+      APP_DB: /app/data/app.db
+      APP_STORAGE: /app/data/uploads
+    volumes:
+      - app_data:/app/data
+    expose:
+      - '8000'
+  gateway:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?Set actual domain and DNS first}
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+volumes:
+  app_data:
+  caddy_data:
+  caddy_config:
